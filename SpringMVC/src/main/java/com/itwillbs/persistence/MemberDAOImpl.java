@@ -98,7 +98,7 @@ public class MemberDAOImpl implements MemberDAO{
 		
 		MemberVO resultVO
 		//MembervO의 객체를 생성해서 사용 
-			= sqlSession.selectOne(NAMESPACE+".loginMember");
+			= sqlSession.selectOne(NAMESPACE+".loginMember",vo);
 		//mapper에서 쿼리 실행 결과 저장해서 리턴 
 		
 		

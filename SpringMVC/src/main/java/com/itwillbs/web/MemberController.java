@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +49,7 @@ public class MemberController {
 		log.info("연결된 View 페이지 출력 ");
 	}
 	
-//=======================================================================
+//------------------------------------------------------------------------
 	
 	//회원가입 POST(처리)
 	@RequestMapping(value = "/insert", method = RequestMethod.POST)
@@ -94,7 +95,7 @@ public class MemberController {
 //=======================================================================
 	//가상 주소는 동일하게 사용 ,method방식으로 나눔 
 	
-	//로그인 GET
+	//로그인 GET : 초기에 로그인 화면으로 이동하면 화면 보여줌 
 	@RequestMapping(value = "/login",method =RequestMethod.GET)
 	public String loginGET() {
 		log.info("loginGET() 실행");
@@ -103,11 +104,13 @@ public class MemberController {
 		//return "memberLogin";(X)
 		return "/member/memberLogin";
 	}
-	//로그인 POST
+//-------------------------------------------------------------------------	
+	//로그인 POST : 로그인 화면에서 로그인정보 입력하고 로그인버튼 누르면 '로그인 동작 실행'
 	@RequestMapping(value = "/login", method =RequestMethod.POST)
 	public String loginPOST(/*
 							 * @ModelAttribute("userid") String userid ,
-							 */MemberVO vo) {
+							 */MemberVO vo,HttpSession session) {
+							 //MemberVO로 변수들 값 받아오고, HttpSession으로 세션에 로그인정보 저장 
 		log.info("loginPOST() 실행");
 		
 		//한글처리 => web.xml 필터사용(생략)
@@ -119,13 +122,51 @@ public class MemberController {
 		log.info("loginVO: "+loginVO);
 		//로그인 여부 확인
 		if(loginVO != null) {
-			//성공 -> 메인페이지 이동, 로그인정보를 저장(세션)  
-			return "";
+			//성공 -> 메인페이지 이동, 로그인정보를 저장(세션)
+			
+			//JSP(View)에서 session정보를 가져와서 사용
+			session.setAttribute("loginVO", loginVO); //로그인 정보를 세션에 담아서 보냄 
+			return "redirect:/member/main";
+			//redirecr: 주소 바꿔서 이동 
 		}else {
 			//실패 -> 로그인 페이지 이동 
-			return "/member/memberLogin";			
+			return "redirect:/member/login";			
 		}
 		
 	}
-	
+//=======================================================================	
+	//메인페이지 GET
+	@RequestMapping(value = "/main",method = RequestMethod.GET)
+	public void mainGET() {
+		log.info("mainGET() 호출");
+		log.info("void리턴: /member/main.jsp 뷰 호출");
+	}
+//=======================================================================	
+	//로그아웃 GET
+	@RequestMapping(value = "/logout", method = RequestMethod.GET)
+	public String logoutGET(HttpSession session) {
+		//로그아웃 -> 세션초기화 
+		session.invalidate();
+		log.info("세션 초기화 완료 -> 로그아웃");
+		
+		//페이지 이동
+		return "redirect:/member/main";
+	}
+//=======================================================================	
+	//회원정보 조회 GET
+	@RequestMapping(value = "/info",method = RequestMethod.GET)
+	public void infoGET(HttpSession session,Model model) {
+		log.info("infoGET() 호출");
+		
+		//main페이지 -> ID정보 -> info페이지
+		MemberVO vo =(MemberVO)session.getAttribute("loginVO");
+		//vo.getUserid();
+		log.info("ID: "+vo.getUserid());
+		//서비스 사용 -> DB정보를 가져오기
+		MemberVO userVO = service.memberGet(vo.getUserid());
+		log.info("userVO: "+userVO);
+		// 전달정보를 Model객체에 저장 -> View 출력
+		model.addAttribute("userVO",userVO);
+		
+	}
 }

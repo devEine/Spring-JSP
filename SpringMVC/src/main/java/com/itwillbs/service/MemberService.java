@@ -10,4 +10,8 @@ public interface MemberService {
 	public MemberVO memberLogin(MemberVO vo);
 	//public MemberVO memberLogin(String userid,Strung userpw); -> 이렇게 해도 상관없지만 MemberVo vo로 한 번에 받는것 편리
 	
+	//회원정보 조회 
+	public MemberVO memberGet(String userid);
+	
+	
 }

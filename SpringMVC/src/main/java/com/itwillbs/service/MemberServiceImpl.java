@@ -44,6 +44,7 @@ public MemberVO memberLogin(MemberVO vo) {
 	//컨트롤러 -> 로그인정보(vo[id,pw]) -> 서비스
 	log.info("memberServiceImpl: memberLogin(MemberVO vo)호출");
 	
+	log.info("VO:"+vo);
 	//서비스 -> 로그인정보(vo[id,pw]) -> DAO
 	log.info("DAO로그인 메서드 호출"); //Service에서 DAO메서드 호출 
 	MemberVO loginVO = dao.loginMember(vo);
@@ -52,6 +53,18 @@ public MemberVO memberLogin(MemberVO vo) {
 
 	return loginVO;
 	//return dao.loginMember(vo)로도 사용 가능하지만 변수에 담는 것을 더 권장 
+}
+//=========================================================================================
+//회원정보 조회 메서드 재정의
+@Override
+public MemberVO memberGet(String userid) {
+	log.info("memberServiceImpl: memberGet(String userid)호출");
+	//주입 객체 사용 -> 메서드 호출 
+	MemberVO getVO = dao.getMember(userid);
+	
+	log.info("memberGet: "+getVO);
+	
+	return getVO;
 }
 }
 
